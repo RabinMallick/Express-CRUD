@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
+const Cryptr = require('cryptr');
+const cryptr = new Cryptr('secretkey');
 
 const validateRegisterInput = require('../../validation/register');
 const validateLoginInput = require('../../validation/login');
@@ -20,6 +22,11 @@ mysqlConnection.connect((err) => {
         console.log('DB connection failed \n Error : ' + JSON.stringify(err, undefined, 2));
 });
 
+// test route
+// router.get('/test', (req, res) => {
+
+// });
+
 // Get login page 
 router.get('/users/login', (req, res) => {
     const errors = {};
@@ -36,16 +43,25 @@ router.post('/users/login', (req, res) => {
 
     let user = req.body;
 
-    mysqlConnection.query('SELECT * FROM users WHERE email = ? and password = ?', [user.email, user.password], (err, rows, fields) => {
+    mysqlConnection.query('SELECT * FROM users WHERE email = ?', [user.email], (err, rows, fields) => {
         if (!err) {
             if (rows.length > 0) {
-                let user = rows[0];
-                req.session.user = user;
-                return res.redirect('/users/profile');
+                let password = cryptr.decrypt(rows[0].password);
+
+                if (password == req.body.password) {
+                    req.session.user = rows[0];
+                    req.session.user.password = password;
+                    return res.redirect('/users/profile');
+                }
+                else {
+                    let errors = {};
+                    errors.user = "Password is incorrect!";
+                    return res.render('login', { errors });
+                }
             }
             else {
                 let errors = {};
-                errors.user = "Email or Password is incorrect!";
+                errors.user = "Email is incorrect!";
                 return res.render('login', { errors });
             }
         }
@@ -130,6 +146,7 @@ router.post('/users/register', (req, res) => {
         }
         else {
             let user = req.body;
+            user.password = cryptr.encrypt(user.password);
             let sql = "INSERT INTO `users` (`user_id`, `name`, `email`, `password`) VALUES (NULL, ?, ?, ?);";
             mysqlConnection.query(sql, [user.name, user.email, user.password], (err, rows, fields) => {
                 if (!err) {
@@ -138,7 +155,7 @@ router.post('/users/register', (req, res) => {
                         user_id: rows.insertId,
                         name: user.name,
                         email: user.email,
-                        password: user.password
+                        password: cryptr.decrypt(user.password)
                     }
 
                     req.session.user = newUser;
@@ -151,6 +168,7 @@ router.post('/users/register', (req, res) => {
                 }
 
             })
+
         }
 
     })
@@ -188,6 +206,7 @@ router.post('/users/edit_profile', (req, res) => {
             return res.render('edit_profile', { errors, user });
         }
 
+        req.body.password = cryptr.encrypt(req.body.password);
         let user = req.body;
         user.user_id = req.session.user.user_id;
 
@@ -196,6 +215,7 @@ router.post('/users/edit_profile', (req, res) => {
             if (!err) {
                 console.log("ID " + results.insertId + " updated successfully !");
                 req.session.user = user;
+                req.session.user.password = cryptr.decrypt(req.session.user.password);
                 return res.redirect('/users/profile');
             }
             else {
