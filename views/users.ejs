@@ -22,7 +22,7 @@
         <button type="button" class="btn btn-secondary"><a href="/users/profile">Go Back</a>
         </button>
         <br>
-        <div class="col-6">
+        <div class="col-6 mx-auto">
             <div class="text-center">
                 <h3>
                     Users
@@ -33,23 +33,23 @@
         <br>
 
         <div class="col-6">
-            <table class="table">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Password</th>
-                        <th scope="col">Delete</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Password</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% for( var i = 0; i<users.length;i++) { %>
                     <tr>
-                        <th scope="row"><%= users[i].user_id %></th>
+                        <td><%= users[i].user_id %></th>
                         <td><%= users[i].name %></td>
                         <td><%= users[i].email %></td>
-                        <td><%= users[i].password %></td>
+                        <td><%= users[i].password.substring(0, 70) %>...</td>
                         <td data-toggle="modal" data-target="#<%= users[i].user_id %>"> <a href="#"><i
                                     class="fa fa-trash"></i></a></td>
                         <div class="modal fade" id="<%= users[i].user_id %>" tabindex="-1" role="dialog"
