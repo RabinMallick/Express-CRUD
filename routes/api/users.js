@@ -87,22 +87,22 @@ router.post('/users/login', (req, res) => {
 // });
 
 //Delete an user
-router.post('/users/delete', (req, res) => {
-    console.log(req.body.user_id);
-    if (req.session.user) {
-        mysqlConnection.query('DELETE FROM users WHERE user_id = ?', [req.body.user_id], (err, rows, fields) => {
-            if (!err)
-                return res.status(200).json("Deleted successfully.");
-            else {
-                console.log(err);
-                return res.status(400).json("ERROR!");
-            }
-        })
-    }
-    else {
-        return res.status(400).json("ERROR!");
-    }
-});
+// router.post('/users/delete', (req, res) => {
+//     console.log(req.body.user_id);
+//     if (req.session.user) {
+//         mysqlConnection.query('DELETE FROM users WHERE user_id = ?', [req.body.user_id], (err, rows, fields) => {
+//             if (!err)
+//                 return res.status(200).json("Deleted successfully.");
+//             else {
+//                 console.log(err);
+//                 return res.status(400).json("ERROR!");
+//             }
+//         })
+//     }
+//     else {
+//         return res.status(400).json("ERROR!");
+//     }
+// });
 
 // Get Register Page
 router.get('/users/register', (req, res) => {
