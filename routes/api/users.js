@@ -1,31 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
 const Cryptr = require('cryptr');
-const cryptr = new Cryptr('secretkey');
 
+const mysqlConnection = require('../../model/db');
 const validateRegisterInput = require('../../validation/register');
 const validateLoginInput = require('../../validation/login');
+const keys = require('../../config/keys');
+const cryptr = new Cryptr(keys.secretKey);
 
-const mysqlConnection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'test',
-    multipleStatements: true
-});
 
-mysqlConnection.connect((err) => {
-    if (!err)
-        console.log('DB connection succeded.');
-    else
-        console.log('DB connection failed \n Error : ' + JSON.stringify(err, undefined, 2));
-});
-
-// test route
-// router.get('/test', (req, res) => {
-
-// });
 
 // Get login page 
 router.get('/users/login', (req, res) => {
@@ -75,22 +58,22 @@ router.post('/users/login', (req, res) => {
 
 
 // Get all users
-router.get('/users', (req, res) => {
-    if (req.session.user) {
-        mysqlConnection.query('SELECT * FROM users', (err, rows, fields) => {
-            if (!err) {
-                const users = rows;
-                return res.render('users', { users });
-            }
-            else
-                console.log(err);
-            return res.status(400).json("ERROR!");
-        })
-    }
-    else {
-        res.redirect('/users/login');
-    }
-});
+// router.get('/users', (req, res) => {
+//     if (req.session.user) {
+//         mysqlConnection.query('SELECT * FROM users', (err, rows, fields) => {
+//             if (!err) {
+//                 const users = rows;
+//                 return res.render('users', { users });
+//             }
+//             else
+//                 console.log(err);
+//             return res.status(400).json("ERROR!");
+//         })
+//     }
+//     else {
+//         res.redirect('/users/login');
+//     }
+// });
 
 // Get an user
 // router.get('/users/get/:id', (req, res) => {
